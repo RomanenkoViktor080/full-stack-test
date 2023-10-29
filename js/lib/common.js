@@ -34,6 +34,9 @@ function cancel_event(event) {
 function ge(id) {
     return 'string' == typeof id || 'number' == typeof id ? document.getElementById(id) : id
 }
+function gn(name) {
+    return 'string' == typeof name || 'number' == typeof name ? document.getElementsByName(name) : name
+}
 
 function html(el, html) {
     if (el = ge(el)) el.innerHTML = html;

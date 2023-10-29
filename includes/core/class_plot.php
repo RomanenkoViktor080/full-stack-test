@@ -40,8 +40,11 @@ class Plot {
         $items = [];
         // where
         $where = [];
-        if ($search) $where[] = "number LIKE '%".$search."%'";
-        $where = $where ? "WHERE ".implode(" AND ", $where) : "";
+        foreach ($d as $item) {
+            $search = isset($item['search']) && trim($item['search']) ? $item['search'] : '';
+            if ($search) $where[] = $item['column'] . " LIKE '%" . $search . "%'";
+        }
+        $where = $where ? "WHERE " . implode(" AND ", $where) : "";
         // info
         $q = DB::query("SELECT plot_id, status, billing, number, size, price, base_fixed, electricity_t1, electricity_t2, updated
             FROM plots ".$where." ORDER BY number+0 LIMIT ".$offset.", ".$limit.";") or die (DB::error());
@@ -71,8 +74,8 @@ class Plot {
         return ['items' => $items, 'paginator' => $paginator];
     }
 
-    public static function plots_fetch($d = []) {
-        $info = Plot::plots_list($d);
+    public static function plots_fetch($data = []) {
+        $info = Plot::plots_list($data);
         HTML::assign('plots', $info['items']);
         return ['html' => HTML::fetch('./partials/plots_table.html'), 'paginator' => $info['paginator']];
     }
@@ -130,6 +133,25 @@ class Plot {
         if ($id == 1) return 'Reserved';
         if ($id == 2) return 'Sold';
         return 'Free';
+    }
+
+    public static function plots_list_users($number) {
+        // vars
+        $items = [];
+        // info
+        $q = DB::query("SELECT plot_id,status, price
+            FROM plots WHERE plot_id LIKE '%".$number."%' ORDER BY plot_id;") or die (DB::error());
+        while ($row = DB::fetch_row($q)) {
+            $plot_ids = explode(',', $row['plot_id']);
+            $val = false;
+            foreach($plot_ids as $plot_id) if ($plot_id == $number) $val = true;
+            if ($val) $items[] = [
+                'status' => Plot::plot_status_str($row['status']),
+                'price' => $row['price'],
+            ];
+        }
+        // output
+        return $items;
     }
 
 }

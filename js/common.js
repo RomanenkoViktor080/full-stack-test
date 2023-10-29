@@ -115,7 +115,9 @@ let common = {
 
     search_do: (act) => {
         // vars
-        let data = { search: gv('search') };
+        let data = [...gn('search')].map(function (i){
+            return {search: i.value, column: i.dataset.column};
+        })
         let location = { dpt: 'search', act: act };
         // call
         request({location: location, data: data}, (result) => {
