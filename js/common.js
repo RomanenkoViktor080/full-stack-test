@@ -90,23 +90,31 @@ let common = {
             if (result.error_msg) {
                 html('login_note', result.error_msg);
                 remove_class('login_note', 'fade');
-                setTimeout(function() { add_class('login_note', 'fade'); }, 3000);
-                setTimeout(function() { html('login_note', ''); }, 3500);
+                setTimeout(function () {
+                    add_class('login_note', 'fade');
+                }, 3000);
+                setTimeout(function () {
+                    html('login_note', '');
+                }, 3500);
             } else html(qs('body'), result.html);
         });
     },
 
     auth_confirm: () => {
         // vars
-        let data = { phone: gv('phone'), code: gv('code') };
-        let location = { dpt: 'auth', act: 'confirm' };
+        let data = {phone: gv('phone'), code: gv('code')};
+        let location = {dpt: 'auth', act: 'confirm'};
         // call
-        request({ location: location, data: data }, (result) => {
+        request({location: location, data: data}, (result) => {
             if (result.error_msg) {
                 html('login_note', result.error_msg);
                 remove_class('login_note', 'fade');
-                setTimeout(function() { add_class('login_note', 'fade'); }, 3000);
-                setTimeout(function() { html('login_note', ''); }, 3500);
+                setTimeout(function () {
+                    add_class('login_note', 'fade');
+                }, 3000);
+                setTimeout(function () {
+                    html('login_note', '');
+                }, 3500);
             } else window.location = window.location.href;
         });
     },
@@ -115,12 +123,33 @@ let common = {
 
     search_do: (act) => {
         // vars
-        let data = [...gn('search')].map(function (i){
+        let data = [...gn('search')].filter(i => i.value).map(function (i) {
             return {search: i.value, column: i.dataset.column};
-        })
-        let location = { dpt: 'search', act: act };
+        }) ?? null
+        let location = {dpt: 'search', act: act};
+        // call
+        request({location: location, data: {search: encodeURIComponent(JSON.stringify(data))}}, (result) => {
+            html('table', result.html);
+            html('paginator', result.paginator);
+        });
+    },
+
+    // users
+    user_delete: (user_id) => {
+        // vars
+        //todo вынести в отдельную функцию
+        let search = [...gn('search')].filter(i => i.value).map(function (i) {
+            return {search: i.value, column: i.dataset.column};
+        }) ?? null
+
+        let data = {
+            search: encodeURIComponent(JSON.stringify(search)),
+            user_id: user_id,
+        };
+        let location = {dpt: 'user', act: 'delete'};
         // call
         request({location: location, data: data}, (result) => {
+            common.modal_hide();
             html('table', result.html);
             html('paginator', result.paginator);
         });

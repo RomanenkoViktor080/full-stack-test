@@ -1,6 +1,6 @@
 <table>
     <tr>
-        <th>Pilot, id</th>
+        <th>User, id</th>
         <th>First name</th>
         <th>Second name</th>
         <th>Email</th>
@@ -31,7 +31,7 @@
                 <div class="menu_popup">
                     <!--<div onclick="common.plot_edit_window({$users[i].id}, event);">Edit</div>-->
                     <div>Edit</div>
-                    <div>Remove</div>
+                    <div onclick="common.user_delete({$users[i].user_id});">Delete</div>
                 </div>
             </i>
         </td>

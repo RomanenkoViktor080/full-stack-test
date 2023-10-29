@@ -55,6 +55,7 @@ class User
     {
         $info = User::users_list($data);
         HTML::assign('users', $info['items']);
+        HTML::assign('search', $info['search']);
         return ['html' => HTML::fetch('./partials/users_table.html'), 'paginator' => $info['paginator']];
     }
 
@@ -62,14 +63,21 @@ class User
     {
         // vars
         $offset = isset($d['offset']) && is_numeric($d['offset']) ? $d['offset'] : 0;
+        $searchData = isset($d['search']) ? json_decode(urldecode($d['search']), true) : null;
         $limit = 20;
         $items = [];
         // where
         $where = [];
-        foreach ($d as $item) {
-            $search = isset($item['search']) && trim($item['search']) ? $item['search'] : '';
-            if ($search) $where[] = $item['column'] . " LIKE '%" . $search . "%'";
+        $search = ['email' => '', 'phone' => '', 'first_name' => ''];
+        if ($searchData and 'array' == gettype($searchData)) {
+            foreach ($searchData as $item) {
+                $searchDataVal = isset($item['search']) && trim($item['search']) ? $item['search'] : '';
+                if (isset($search[$item['column']])) $search[$item['column']] = $searchDataVal;
+                if ($searchDataVal) $where[] = $item['column'] . " LIKE '%" . $searchDataVal . "%'";
+            }
         }
+        // Так как в шаблонизаторе нельзя использовать ключи типа string
+        $search = array_values($search);
         $where = $where ? "WHERE " . implode(" AND ", $where) : "";
         // info
         $q = DB::query("SELECT user_id, plot_id, first_name, last_name, email, phone, last_login
@@ -89,10 +97,16 @@ class User
         $q = DB::query("SELECT count(*) FROM users " . $where . ";");
         $count = ($row = DB::fetch_row($q)) ? $row['count(*)'] : 0;
         $url = 'users?';
-        if ($search) $url .= '&search=' . $search;
+        if (isset($d['search'])) $url .= '&search=' . urlencode($d['search']) . "&";
         paginator($count, $offset, $limit, $url, $paginator);
         // output
-        return ['items' => $items, 'paginator' => $paginator];
+        return ['items' => $items, 'paginator' => $paginator, 'search' => $search];
+    }
+
+    public static function user_delete($d)
+    {
+        DB::query("DELETE FROM users WHERE user_id = " . $d['user_id']) or die (DB::error());
+        return User::users_fetch($d);
     }
 
 }
