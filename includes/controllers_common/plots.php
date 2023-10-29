@@ -10,6 +10,7 @@ function controller_plots() {
     HTML::assign('plots', $plots['items']);
     HTML::assign('paginator', $plots['paginator']);
     HTML::assign('search', $plots['search']);
+    HTML::assign('offset', $offset);
     HTML::assign('section', 'plots.html');
     HTML::assign('main_content', 'home.html');
 }

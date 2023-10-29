@@ -123,28 +123,57 @@ let common = {
 
     search_do: (act) => {
         // vars
-        let data = [...gn('search')].filter(i => i.value).map(function (i) {
-            return {search: i.value, column: i.dataset.column};
-        }) ?? null
         let location = {dpt: 'search', act: act};
         // call
-        request({location: location, data: {search: encodeURIComponent(JSON.stringify(data))}}, (result) => {
+        request({location: location, data: {search: get_enc_url_search()}}, (result) => {
             html('table', result.html);
             html('paginator', result.paginator);
         });
     },
 
     // users
-    user_delete: (user_id) => {
+
+    user_edit_window: (user_id = 0, e) => {
+        // actions
+        cancel_event(e);
+        common.menu_popup_hide_all('all');
+        let data = {user_id: user_id};
+        let location = {dpt: 'user', act: 'edit_window'};
+        // call
+        request({location: location, data: data}, (result) => {
+            common.modal_show(400, result.html);
+        });
+    },
+
+    user_edit_update: (user_id = 0) => {
         // vars
-        //todo вынести в отдельную функцию
-        let search = [...gn('search')].filter(i => i.value).map(function (i) {
-            return {search: i.value, column: i.dataset.column};
-        }) ?? null
 
         let data = {
-            search: encodeURIComponent(JSON.stringify(search)),
+            data: {
+                user_id: user_id,
+                first_name: gv('first_name'),
+                last_name: gv('last_name'),
+                phone: gv('phone'),
+                email: gv('email'),
+                plots: gv('plots'),
+            },
+            offset: global.offset,
+            search: get_enc_url_search(),
+        };
+        let location = {dpt: 'user', act: 'edit_update'};
+        // call
+        request({location: location, data: data}, (result) => {
+            common.modal_hide();
+            html('table', result.html);
+        });
+    },
+
+    user_delete: (user_id) => {
+
+        let data = {
+            search: get_enc_url_search(),
             user_id: user_id,
+            offset: global.offset,
         };
         let location = {dpt: 'user', act: 'delete'};
         // call
@@ -179,7 +208,8 @@ let common = {
             number: gv('number'),
             size: gv('size'),
             price: gv('price'),
-            offset: global.offset
+            offset: global.offset,
+            search: get_enc_url_search()
         };
         let location = {dpt: 'plot', act: 'edit_update'};
         // call

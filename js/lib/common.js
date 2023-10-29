@@ -127,6 +127,13 @@ function trim(text) {
     return (text || '').replace(/^\s+|\s+$/g, '');
 }
 
+function get_enc_url_search (name = 'search')  {
+    let search = [...gn(name)].filter(i => i.value).map(function (i) {
+        return {search: i.value, column: i.dataset.column};
+    }) ?? null;
+    return encodeURIComponent(JSON.stringify(search));
+}
+
 function on_click(el) {
     if (el = ge(el)) {
         if (el.click) el.click();

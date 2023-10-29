@@ -1,6 +1,7 @@
 <?php
 
-function controller_users() {
+function controller_users()
+{
     // vars
     $offset = isset($_GET['offset']) ? flt_input($_GET['offset']) : 0;
     $search = $_GET['search'] ?? null;
@@ -10,6 +11,7 @@ function controller_users() {
     HTML::assign('users', $users['items']);
     HTML::assign('paginator', $users['paginator']);
     HTML::assign('search', $users['search']);
+    HTML::assign('offset', $offset);
     HTML::assign('section', 'users.html');
     HTML::assign('main_content', 'home.html');
 }
